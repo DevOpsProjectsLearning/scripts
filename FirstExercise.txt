@@ -1,0 +1,1 @@
+Run a NGINX server in a Docker container on local. It needs to run in background and use localhost:8080 to open it

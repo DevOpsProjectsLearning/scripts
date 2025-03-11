@@ -1,0 +1,11 @@
+1. docker build -t myapp . 
+docker build - This tells Docker to build a new image.
+-t myapp - The -t flag assigns a tag (name) to the image. Here, the image is named myapp. If you don't specify a tag, Docker will use latest by default (e.g., myapp:latest).
+. (dot) - This specifies the build context, meaning Docker will look for a Dockerfile in the current directory (.). The build context includes all files in the directory unless a .dockerignore file excludes them
+
+2. docker run -d -p 8080:80 --name my-nginx myapp
+docker run - This starts a new container from an image.
+-d (detached mode) - Runs the container in the background, so it doesn’t block the terminal.
+-p 8080:80 (port mapping) - Maps port 80 inside the container to port 8080 on your local machine. This allows you to access the Nginx server at http://localhost:8080.
+--name my-nginx - Assigns the container a custom name (my-nginx). Without this flag, Docker assigns a random name.
+myapp - This is the name of the image to use. It must match the image name created with docker build -t myapp .
