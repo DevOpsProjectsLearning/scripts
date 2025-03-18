@@ -3,34 +3,34 @@ name: Upload to Azure Blob Storage
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to main
+      - main  # Runs on push to main
 
 permissions:
-  id-token: write  # ✅ Grants permission to generate an identity token for authentication
-  contents: read   # ✅ Allows reading repository contents
+  contents: read   # Read access to repository contents
 
 jobs:
   upload:
-    runs-on: ubuntu-latest  # Runs on the latest Ubuntu virtual machine
+    runs-on: ubuntu-latest  # Runs on Ubuntu virtual machine
 
     steps:
-      # 1️⃣ Checkout - Fetch the repository content from GitHub
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Login to Azure using the service principal credentials stored in GitHub Secrets
+      # 2️⃣ Login to Azure using Service Principal and Client Secret
       - name: Login to Azure
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}  # ✅ Uses client secret instead of OIDC
 
-      # 3️⃣ Upload files from the `my-app` folder to the Azure Blob Storage container
+      # 3️⃣ Upload files to Azure Blob Storage
       - name: Upload files to Azure Blob Storage
         run: |
           az storage blob upload-batch \
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
             --destination ${{ secrets.AZURE_STORAGE_CONTAINER }} \
             --source my-app \
-            --auth-mode login
+            --auth-mode key
