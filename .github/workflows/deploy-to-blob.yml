@@ -31,4 +31,4 @@ jobs:
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
             --destination ${{ secrets.AZURE_STORAGE_CONTAINER }} \
             --source my-app \
-            --auth-mode key
+            --auth-mode login  # Use AAD authentication instead of account key
