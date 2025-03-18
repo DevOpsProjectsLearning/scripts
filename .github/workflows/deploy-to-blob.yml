@@ -25,6 +25,8 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}  # ✅ Uses client secret authentication
+          # Explicitly set authentication type to Service Principal to avoid OIDC issues
+          auth-type: 'servicePrincipal'
 
       # 3️⃣ Upload files to Azure Blob Storage
       - name: Upload files to Azure Blob Storage
