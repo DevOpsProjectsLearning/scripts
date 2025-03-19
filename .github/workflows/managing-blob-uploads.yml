@@ -1,9 +1,7 @@
 name: Managing blob uploads
 
 on:
-  push:
-    branches:
-      - main  # Runs on push to main
+  workflow_dispatch:
 
 permissions:
   contents: read   # Allows reading the repository contents
