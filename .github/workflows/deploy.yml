@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   id-token: write
@@ -24,11 +25,6 @@ jobs:
         with:
           terraform_version: latest
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Terraform Init
         run: terraform init
         working-directory: terraform/
@@ -40,12 +36,17 @@ jobs:
       - name: Terraform Apply (Manual Approval)
         run: terraform apply -auto-approve
         working-directory: terraform/
-        if: github.event_name == 'workflow_dispatch'
+        environment: production
 
       - name: Install Azure CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y azure-cli
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Upload files to Blob Storage
         run: |
