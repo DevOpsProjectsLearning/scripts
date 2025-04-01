@@ -49,6 +49,6 @@ jobs:
 
       - name: Upload files to Blob Storage
         run: |
-          az storage blob upload-batch -d my-container --account-name myStorageAccount -s my-app/
+          az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/
 
 
