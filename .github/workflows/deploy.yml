@@ -10,10 +10,9 @@ permissions:
   contents: read
 
 jobs:
-  terraform:
-    name: Deploy Infrastructure
+  terraform_init_plan:
+    name: Terraform init plan
     runs-on: ubuntu-latest
-    environment: production
     
     steps:
       - name: Checkout repository
@@ -34,13 +33,38 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
         working-directory: terraform/
 
+      - name: Save Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan
+          path: tfplan
+
+  terraform_apply:
+    needs: terraform_init_plan
+    name: Terraform apply
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+          path: .
+
       - name: Terraform Apply (Manual Approval)
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve tfplan
         working-directory: terraform/
-        if: ${{ github.event.deployment_status.state == 'success' }}  # Run only if approval is given
 
       - name: Install Azure CLI
         run: |
@@ -50,5 +74,4 @@ jobs:
       - name: Upload files to Blob Storage
         run: |
           az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/
-
-
+          
