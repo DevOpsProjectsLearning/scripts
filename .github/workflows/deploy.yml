@@ -13,7 +13,7 @@ jobs:
   terraform_init_plan:
     name: Terraform init plan
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -42,6 +42,12 @@ jobs:
           name: terraform-plan
           path: terraform/tfplan
 
+      - name: Save Provider Lock File
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-lock
+          path: terraform/.terraform.lock.hcl
+
   terraform_apply:
     needs: terraform_init_plan
     name: Terraform apply
@@ -62,6 +68,16 @@ jobs:
           name: terraform-plan
           path: terraform/
 
+      - name: Download Provider Lock File
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-lock
+          path: terraform/
+
+      - name: Terraform Init
+        run: terraform init -lockfile=readonly
+        working-directory: terraform/
+
       - name: Terraform Apply (Manual Approval)
         run: terraform apply -auto-approve tfplan
         working-directory: terraform/
@@ -74,4 +90,3 @@ jobs:
       - name: Upload files to Blob Storage
         run: |
           az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/
-          
