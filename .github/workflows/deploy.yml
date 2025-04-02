@@ -49,44 +49,43 @@ jobs:
           path: .terraform.lock.hcl
 
   terraform_apply:
-  needs: terraform_init_plan
-  name: Terraform apply
-  runs-on: ubuntu-latest
-  environment: production
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    needs: terraform_init_plan
+    name: Terraform apply
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: latest
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
 
-    - name: Download Plan Artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-plan
-        path: .
+      - name: Download Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan
+          path: .
 
-    - name: Download Provider Lock File
-      uses: actions/download-artifact@v4
-      with:
-        name: terraform-lock
-        path: .
+      - name: Download Provider Lock File
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-lock
+          path: .
 
-    - name: Move tfplan to terraform Directory
-      run: mv tfplan terraform/
+      - name: Move tfplan to terraform Directory
+        run: mv tfplan terraform/
 
-    - name: Terraform Apply (Manual Approval)
-      run: terraform apply -auto-approve tfplan
-      working-directory: terraform/
+      - name: Terraform Apply (Manual Approval)
+        run: terraform apply -auto-approve tfplan
+        working-directory: terraform/
 
-    - name: Install Azure CLI
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y azure-cli
+      - name: Install Azure CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y azure-cli
 
-    - name: Upload files to Blob Storage
-      run: |
-        az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/
-
+      - name: Upload files to Blob Storage
+        run: |
+          az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/
