@@ -60,7 +60,8 @@ jobs:
             -u ${{ secrets.AZURE_CLIENT_ID }} \
             -p ${{ secrets.AZURE_CLIENT_SECRET }} \
             --tenant ${{ secrets.AZURE_TENANT_ID }}
+          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Upload files to Blob Storage
         run: |
-          az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/
+          az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/ --auth-mode login
