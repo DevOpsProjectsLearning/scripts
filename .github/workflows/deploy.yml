@@ -27,6 +27,14 @@ jobs:
         run: terraform init -upgrade
         working-directory: terraform/
 
+      - name: Check if .terraform.lock.hcl exists
+        run: |
+          if [ -f terraform/.terraform.lock.hcl ]; then
+            echo ".terraform.lock.hcl exists.";
+          else
+            echo ".terraform.lock.hcl does not exist.";
+          fi
+
       - name: Azure Login
         uses: azure/login@v1
         with:
