@@ -42,16 +42,16 @@ jobs:
           name: terraform-plan
           path: terraform/tfplan
 
-      - name: Debug Lock File
+      - name: Debug Lock File Path
         run: |
-          ls -lah terraform/
-          cat terraform/.terraform.lock.hcl || echo "Lock file not found"
+          echo "Current working directory: $(pwd)"
+          ls -lah ${{ github.workspace }}/terraform/
 
       - name: Save Provider Lock File
         uses: actions/upload-artifact@v4
         with:
           name: terraform-lock
-          path: terraform/.terraform.lock.hcl
+          path: ${{ github.workspace }}/terraform/.terraform.lock.hcl
 
   terraform_apply:
     needs: terraform_init_plan
