@@ -17,6 +17,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -27,19 +32,6 @@ jobs:
         run: terraform init -upgrade
         working-directory: terraform/
 
-      - name: Check if .terraform.lock.hcl exists
-        run: |
-          if [ -f terraform/.terraform.lock.hcl ]; then
-            echo ".terraform.lock.hcl exists.";
-          else
-            echo ".terraform.lock.hcl does not exist.";
-          fi
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
       - name: Terraform Plan
         run: terraform plan -out=tfplan
         working-directory: terraform/
@@ -49,6 +41,11 @@ jobs:
         with:
           name: terraform-plan
           path: terraform/tfplan
+
+      - name: Debug Lock File
+        run: |
+          ls -lah terraform/
+          cat terraform/.terraform.lock.hcl || echo "Lock file not found"
 
       - name: Save Provider Lock File
         uses: actions/upload-artifact@v4
