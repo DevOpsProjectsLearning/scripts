@@ -10,9 +10,10 @@ permissions:
   contents: read
 
 jobs:
-  terraform_init_plan:
-    name: Terraform init plan
+  terraform_deploy:
+    name: Terraform Deploy
     runs-on: ubuntu-latest
+    environment: production
 
     steps:
       - name: Checkout repository
@@ -29,65 +30,36 @@ jobs:
           terraform_version: latest
 
       - name: Terraform Init
-        run: terraform init -upgrade
+        run: terraform init
         working-directory: terraform/
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan
         working-directory: terraform/
 
-      - name: Save Plan Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plan
-          path: terraform/tfplan
+      - name: Terraform Apply (Manual Approval)
+        run: terraform apply -auto-approve
+        working-directory: terraform/
 
-      - name: Debug - List Terraform Directory
-        run: ls -lah terraform/
-
-      - name: Save Provider Lock File
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-lock
-          path: terraform/.terraform.lock.hcl
-
-  terraform_apply:
-    needs: terraform_init_plan
-    name: Terraform apply
+  deploy_files:
+    name: Deploy files
+    needs: terraform_deploy
     runs-on: ubuntu-latest
-    environment: production
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: latest
-
-      - name: Download Plan Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-plan
-          path: terraform/
-
-      - name: Download Provider Lock File
-        uses: actions/download-artifact@v4
-        with:
-          name: terraform-lock
-          path: terraform/
-
-      - name: Move tfplan to terraform Directory
-        run: mv tfplan terraform/
-
-      - name: Terraform Apply (Manual Approval)
-        run: terraform apply -auto-approve tfplan
-        working-directory: terraform/
 
       - name: Install Azure CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y azure-cli
+
+      - name: Azure Login
+        run: |
+          az login --service-principal \
+            -u ${{ secrets.AZURE_CLIENT_ID }} \
+            -p ${{ secrets.AZURE_CLIENT_SECRET }} \
+            --tenant ${{ secrets.AZURE_TENANT_ID }}
 
       - name: Upload files to Blob Storage
         run: |
