@@ -1,4 +1,13 @@
-# Exercise 1: Automating Blob Storage Uploads with GitHub Actions
+# Exercise 1: Running NGINX Server in a Docker Container
+## Objective
+Run an NGINX server in a Docker container locally, ensuring it runs in the background and can be accessed via localhost:8080.
+
+## Resolution
+- Simple Docker file created: my-app\Dockerfile
+- Build the Docker image: docker build -t myapp . 
+- Start a new container using the image: docker run -d -p 8080:80 --name my-nginx myapp
+
+# Exercise 2: Automating Blob Storage Uploads with GitHub Actions
 ## Objective
 Set up an Azure environment and create a GitHub Actions workflow to automatically upload files to an Azure Blob Storage container whenever code is pushed to the main branch.
 
@@ -33,3 +42,40 @@ Before starting, ensure that you have:
 - File that will be uploaded: my-app\Dockerfile
 - GitHub Actions workflow created: .github\workflow\automate-blob-uploads.yml
 - Note: The code section for push is commented out
+
+# Exercise 3: Exercise: Modifying Blob Upload Workflow with GitHub Actions
+## Objective
+Modify the existing GitHub Actions workflow on Exercise 1 to:
+- Rename the job to "Managing blob uploads".
+- Replace the on push trigger with a workflow dispatch trigger.
+- Add inputs as checkboxes for Upload or Delete, and update the workflow to upload or delete the file from Azure Blob Storage based on the selected action.
+
+## Resolution
+- File that will be uploaded / deleted: my-app\Dockerfile
+- Updated GitHub Actions workflow created: .github\workflow\managing-blob-uploads.yml
+
+# Exercise 4: Automating Azure Resource Creation with Terraform and GitHub Actions
+## Objective
+Terraform Setup:
+- Use an Azure provider configured with azurerm.
+- Create a resource group.
+- Create a storage account within the resource group.
+- Create a blob container inside the storage account.
+- Use outputs.tf to expose the URL of the created blob container.
+
+GitHub Actions Setup:
+- Trigger the workflow on a push to the main branch.
+- The workflow must run the following steps: 
+- terraform init: Initialize the Terraform configuration
+- terraform plan: Generate an execution plan
+- terraform apply: Apply the Terraform configuration (with manual approval in GitHub environments).
+- After terraform apply, the following steps must be executed:
+- Install Azure CLI.
+- Authenticate to Azure using AZURE_CREDENTIALS (configured in GitHub secrets).
+- Upload all files to the created blob container.
+
+## Resolution
+- Service Principal with "Storage Blob Data Contributor" role for Terraform created: terraform-service-principal
+- Terraform setup files: terraform\main.tf, outputs.tf, variables.tf
+- GitHub Actions workflow created: .github\workflow\deploy.yml
+- File that will be uploaded: my-app\Dockerfile
