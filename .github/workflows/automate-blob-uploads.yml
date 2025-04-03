@@ -1,9 +1,9 @@
-name: Managing blob uploads
+name: Automate Blob Uploads
 
-on:
-  push:
-    branches:
-      - main  # Runs on push to main
+# on:
+#   push:
+#     branches:
+#       - main  # Runs on push to main
 
 permissions:
   contents: read   # Allows reading the repository contents

@@ -1,4 +1,4 @@
-name: Managing Blob Storage
+name: Managing Blob Uploads
 
 on:
   workflow_dispatch:
@@ -22,18 +22,17 @@ jobs:
     runs-on: ubuntu-latest  # Runs on the latest Ubuntu virtual machine
 
     steps:
-      # 1️⃣ Checkout repository
+      # Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2️⃣ Login to Azure using Service Principal and Client Secret
+      # Login to Azure using Service Principal and Client Secret
       - name: Login to Azure
         uses: azure/login@v1
         with:
           creds: '{"clientId": "${{ secrets.AZURE_CLIENT_ID }}", "clientSecret": "${{ secrets.AZURE_CLIENT_SECRET }}", "tenantId": "${{ secrets.AZURE_TENANT_ID }}", "subscriptionId": "${{ secrets.AZURE_SUBSCRIPTION_ID }}"}'
-          # ✅ Use creds to pass the service principal credentials
 
-      # 3️⃣ Upload files if 'update' is checked ✅
+      # Upload all files to Azure Blob Storage if 'update' is checked. --auth-mode login → Uses the currently logged-in Azure credentials to authenticate
       - name: Upload files to Azure Blob Storage
         if: inputs.update == true
         run: |
@@ -41,12 +40,12 @@ jobs:
             --account-name ${{ secrets.AZURE_STORAGE_ACCOUNT }} \
             --destination ${{ secrets.AZURE_STORAGE_CONTAINER }} \
             --source my-app \
-            --auth-mode login  # Use AAD authentication instead of account key
+            --auth-mode login
         env:
           AZURE_STORAGE_ACCOUNT: ${{ secrets.AZURE_STORAGE_ACCOUNT }}
           AZURE_STORAGE_CONTAINER: ${{ secrets.AZURE_STORAGE_CONTAINER }}
 
-      # 4️⃣ Delete all blobs if 'delete' is checked ✅
+      # Delete all files from Azure Blob Storage if 'delete' is checked. --auth-mode login → Uses the currently logged-in Azure credentials to authenticate
       - name: Delete all files from Azure Blob Storage
         if: inputs.delete == true
         run: |
