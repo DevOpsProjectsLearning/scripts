@@ -72,9 +72,6 @@ jobs:
           name: terraform-plan
           path: terraform/
 
-      - name: List files (debug)
-        run: ls -R terraform
-
       - name: Terraform Apply (Manual Approval)
         run: terraform apply tfplan
         working-directory: terraform/
