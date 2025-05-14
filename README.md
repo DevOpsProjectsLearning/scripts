@@ -57,6 +57,7 @@ Modify the existing GitHub Actions workflow on Exercise 1 to:
 # Exercise 4: Automating Azure Resource Creation with Terraform and GitHub Actions
 ## Objective
 Terraform Setup:
+- Use a backend
 - Use an Azure provider configured with azurerm.
 - Create a resource group.
 - Create a storage account within the resource group.
