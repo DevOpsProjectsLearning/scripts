@@ -72,7 +72,7 @@ jobs:
         run: ls -R terraform
 
       - name: Terraform Apply (Manual Approval)
-        run: terraform apply terraform/tfplan
+        run: terraform apply tfplan
         working-directory: terraform/
 
   deploy_files:
