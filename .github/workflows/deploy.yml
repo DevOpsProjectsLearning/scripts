@@ -10,10 +10,9 @@ permissions:
   contents: read
 
 jobs:
-  terraform_deploy:
-    name: Terraform Deploy
+  terraform_init_plan:
+    name: Terraform Init + Plan
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
       - name: Checkout repository
@@ -34,34 +33,59 @@ jobs:
         working-directory: terraform/
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
         working-directory: terraform/
 
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: terraform-plan
+          path: terraform/tfplan
+
+  terraform_apply:
+    name: Terraform Apply
+    needs: terraform_init_plan
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: latest
+
+      - name: Download Plan File
+        uses: actions/download-artifact@v3
+        with:
+          name: terraform-plan
+          path: terraform/
+
       - name: Terraform Apply (Manual Approval)
-        run: terraform apply -auto-approve
+        run: terraform apply terraform/tfplan
         working-directory: terraform/
 
   deploy_files:
     name: Deploy files
-    needs: terraform_deploy
+    needs: terraform_apply
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Azure CLI
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y azure-cli
-
       - name: Azure Login
-        run: |
-          az login --service-principal \
-            -u ${{ secrets.AZURE_CLIENT_ID }} \
-            -p ${{ secrets.AZURE_CLIENT_SECRET }} \
-            --tenant ${{ secrets.AZURE_TENANT_ID }}
-          az account set --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Upload files to Blob Storage
         run: |
           az storage blob upload-batch -d mycontainer --account-name mystorageacct100497 -s my-app/ --auth-mode login
+          
